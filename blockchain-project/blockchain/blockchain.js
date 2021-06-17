@@ -31,19 +31,17 @@ class BlockChain {
 
   mining(block) {
     const bits = block.bits;
-    const target = this.getTarget(bits);
-    console.log(new Date(Date.now()).toISOString());
+    const target = this.getTarget(bits).toString("hex");
     console.log(target);
-    while (target <= "0x" + block.getHash()) {
+    while (target <= block.getHash()) {
       block.nonce++;
     }
-    console.log(new Date(Date.now()).toISOString());
     return { nonce: block.nonce, hash: block.getHash() };
   }
 
   difficultyToBits(difficulty) {
     const maximumTarget = parseInt("0x00000000ffff" + "0".repeat(64 - 12), 16);
-    let target = maximumTarget / parseInt(difficulty.toString(16), 16);
+    let target = maximumTarget / parseFloat(difficulty.toString(16), 16);
     let num = new BN(target.toString(16), "hex");
     let compact, nSize, bits;
     nSize = num.byteLength();
@@ -65,9 +63,3 @@ class BlockChain {
     return parseInt(bits.toString(10));
   }
 }
-
-const blockchain = new BlockChain();
-const block = Block.getGenesis();
-const y = blockchain.difficultyToBits(1);
-console.log("bits", y);
-console.log(blockchain.mining(block));
