@@ -11,7 +11,7 @@ class BlockChain {
   }
 
   getTarget(bits) {
-    let bits16 = parseInt("0x" + bits.toString(16), 16);
+    let bits16 = parseFloat("0x" + bits.toString(16), 16);
     let exponent = bits16 >> 24;
     let mantissa = bits16 & 0xffffff;
     let target = mantissa * 2 ** (8 * (exponent - 3));
@@ -21,8 +21,11 @@ class BlockChain {
   }
 
   bitsToDifficulty(bits) {
-    const maximumTarget = parseInt("0x00000000ffff" + "0".repeat(64 - 12), 16);
-    return maximumTarget / parseInt("0x" + this.getTarget(bits), 16);
+    const maximumTarget = parseFloat(
+      "0x00000000ffff" + "0".repeat(64 - 12),
+      16
+    );
+    return maximumTarget / parseFloat("0x" + this.getTarget(bits), 16);
   }
 
   getLastBlock() {
@@ -40,7 +43,10 @@ class BlockChain {
   }
 
   difficultyToBits(difficulty) {
-    const maximumTarget = parseInt("0x00000000ffff" + "0".repeat(64 - 12), 16);
+    const maximumTarget = parseFloat(
+      "0x00000000ffff" + "0".repeat(64 - 12),
+      16
+    );
     let target = maximumTarget / parseFloat(difficulty.toString(16), 16);
     let num = new BN(target.toString(16), "hex");
     let compact, nSize, bits;
@@ -60,6 +66,6 @@ class BlockChain {
       bits |= 0x800000;
     }
     bits >>>= 0;
-    return parseInt(bits.toString(10));
+    return parseFloat(bits.toString(10));
   }
 }
