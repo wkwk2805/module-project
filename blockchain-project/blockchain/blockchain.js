@@ -21,11 +21,9 @@ class BlockChain {
   }
 
   bitsToDifficulty(bits) {
-    const maximumTarget = parseFloat(
-      "0x00000000ffff" + "0".repeat(64 - 12),
-      16
-    );
-    return maximumTarget / parseFloat("0x" + this.getTarget(bits), 16);
+    const maximumTarget = "0x00000000ffff" + "0".repeat(64 - 12);
+    const currentTarget = "0x" + this.getTarget(bits);
+    return parseFloat(maximumTarget, 16) / parseFloat(currentTarget, 16);
   }
 
   getLastBlock() {
@@ -43,11 +41,9 @@ class BlockChain {
   }
 
   difficultyToBits(difficulty) {
-    const maximumTarget = parseFloat(
-      "0x00000000ffff" + "0".repeat(64 - 12),
-      16
-    );
-    let target = maximumTarget / parseFloat(difficulty.toString(16), 16);
+    const maximumTarget = "0x00000000ffff" + "0".repeat(64 - 12);
+    const difficulty16 = difficulty.toString(16);
+    let target = parseFloat(maximumTarget, 16) / parseFloat(difficulty16, 16);
     let num = new BN(target.toString(16), "hex");
     let compact, nSize, bits;
     nSize = num.byteLength();
