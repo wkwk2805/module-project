@@ -33,7 +33,6 @@ class BlockChain {
   mining(block) {
     const bits = block.bits;
     const target = this.getTarget(bits).toString("hex");
-    console.log(target);
     while (target <= block.getHash()) {
       block.nonce++;
     }
