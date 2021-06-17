@@ -20,7 +20,7 @@ class Block {
       timestamp: Math.floor(new Date().getTime() / 1000),
       nonce: 0,
       transactions: [],
-      bits: 486604799,
+      bits: 503692944,
     });
   }
 
