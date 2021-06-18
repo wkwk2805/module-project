@@ -22,8 +22,11 @@ class BlockChain {
     return k.toString("hex");
   }
 
+  getTargetHaveHandicap(bits) {
+    return this.getTarget(bits + this.HANDICAP);
+  }
+
   bitsToDifficulty(bits) {
-    bits = bits - this.HANDICAP;
     const maximumTarget = "0x00000000ffff" + "0".repeat(64 - 12);
     const currentTarget = "0x" + this.getTarget(bits);
     return parseInt(maximumTarget, 16) / parseInt(currentTarget, 16);
@@ -35,7 +38,7 @@ class BlockChain {
 
   mining(block) {
     const bits = block.bits;
-    const target = this.getTarget(bits).toString("hex");
+    const target = this.getTargetHaveHandicap(bits);
     while (target <= block.getHash()) {
       block.nonce++;
     }
@@ -43,7 +46,6 @@ class BlockChain {
   }
 
   difficultyToBits(difficulty) {
-    let handicap = 0x4000000;
     const maximumTarget = "0x00000000ffff" + "0".repeat(64 - 12);
     const difficulty16 = difficulty.toString(16);
     let target = parseInt(maximumTarget, 16) / parseInt(difficulty16, 16);
@@ -65,10 +67,6 @@ class BlockChain {
       bits |= 0x800000;
     }
     bits >>>= 0;
-    return parseInt(bits.toString(10)) + this.HANDICAP;
+    return parseInt(bits.toString(10));
   }
 }
-
-const blockchain = new BlockChain();
-console.log(blockchain.difficultyToBits(6727225469722.53));
-console.log(blockchain.bitsToDifficulty(455726893));
