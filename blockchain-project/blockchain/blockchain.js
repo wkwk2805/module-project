@@ -11,7 +11,7 @@ class BlockChain {
   }
 
   getTarget(bits) {
-    let bits16 = parseFloat("0x" + bits.toString(16), 16);
+    let bits16 = parseInt("0x" + bits.toString(16), 16);
     let exponent = bits16 >> 24;
     let mantissa = bits16 & 0xffffff;
     let target = mantissa * 2 ** (8 * (exponent - 3));
@@ -23,7 +23,7 @@ class BlockChain {
   bitsToDifficulty(bits) {
     const maximumTarget = "0x00000000ffff" + "0".repeat(64 - 12);
     const currentTarget = "0x" + this.getTarget(bits);
-    return parseFloat(maximumTarget, 16) / parseFloat(currentTarget, 16);
+    return parseInt(maximumTarget, 16) / parseInt(currentTarget, 16);
   }
 
   getLastBlock() {
@@ -39,10 +39,14 @@ class BlockChain {
     return { nonce: block.nonce, hash: block.getHash() };
   }
 
-  difficultyToBits(difficulty) {
+  difficultyToBits(difficulty, handicap) {
+    if (handicap >= 67108865)
+      throw Error(
+        "handicap은 67108865(16진수:4000000)보다 작은 값이어야 합니다"
+      );
     const maximumTarget = "0x00000000ffff" + "0".repeat(64 - 12);
     const difficulty16 = difficulty.toString(16);
-    let target = parseFloat(maximumTarget, 16) / parseFloat(difficulty16, 16);
+    let target = parseInt(maximumTarget, 16) / parseInt(difficulty16, 16);
     let num = new BN(target.toString(16), "hex");
     let compact, nSize, bits;
     nSize = num.byteLength();
@@ -61,6 +65,11 @@ class BlockChain {
       bits |= 0x800000;
     }
     bits >>>= 0;
-    return parseFloat(bits.toString(10));
+    return parseInt(bits.toString(10)) + handicap;
   }
 }
+
+const blockchain = new BlockChain();
+console.log();
+let num = 67108864;
+console.log(blockchain.getTarget(blockchain.difficultyToBits(1, num)));
