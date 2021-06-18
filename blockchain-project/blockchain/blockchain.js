@@ -2,6 +2,8 @@ const { BN } = require("bn.js");
 const Block = require("./block");
 
 class BlockChain {
+  HANDICAP = 0x4000000;
+
   constructor() {
     this.blockchain = [];
   }
@@ -21,6 +23,7 @@ class BlockChain {
   }
 
   bitsToDifficulty(bits) {
+    bits = bits - this.HANDICAP;
     const maximumTarget = "0x00000000ffff" + "0".repeat(64 - 12);
     const currentTarget = "0x" + this.getTarget(bits);
     return parseInt(maximumTarget, 16) / parseInt(currentTarget, 16);
@@ -39,11 +42,8 @@ class BlockChain {
     return { nonce: block.nonce, hash: block.getHash() };
   }
 
-  difficultyToBits(difficulty, handicap) {
-    if (handicap >= 67108865)
-      throw Error(
-        "handicap은 67108865(16진수:4000000)보다 작은 값이어야 합니다"
-      );
+  difficultyToBits(difficulty) {
+    let handicap = 0x4000000;
     const maximumTarget = "0x00000000ffff" + "0".repeat(64 - 12);
     const difficulty16 = difficulty.toString(16);
     let target = parseInt(maximumTarget, 16) / parseInt(difficulty16, 16);
@@ -65,11 +65,10 @@ class BlockChain {
       bits |= 0x800000;
     }
     bits >>>= 0;
-    return parseInt(bits.toString(10)) + handicap;
+    return parseInt(bits.toString(10)) + this.HANDICAP;
   }
 }
 
 const blockchain = new BlockChain();
-console.log();
-let num = 67108864;
-console.log(blockchain.getTarget(blockchain.difficultyToBits(1, num)));
+console.log(blockchain.difficultyToBits(6727225469722.53));
+console.log(blockchain.bitsToDifficulty(455726893));
