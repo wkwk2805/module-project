@@ -43,24 +43,26 @@ class BlockChain {
   }
 
   mining() {
-    const block = Object.assign(this.getLastBlock());
-    const bits = block.bits;
+    const lastBlock = this.getLastBlock();
+    const block = "";
+    const newBlock = new Block({
+      index: lastBlock.index + 1,
+      previousHash: lastBlock.hash,
+      timestamp: Date.now(),
+      transactions: this.transactions,
+      nonce: 0,
+    });
+    const bits = lastBlock.bits;
     const target = this.getTargetHaveHandicap(bits);
-    while (target <= block.getHash()) {
-      block.nonce++;
+    while (target <= newBlock.getHash()) {
+      newBlock.nonce++;
     }
     const difficulty = this.getDifficulty(bits);
-    const newBlock = {
-      index: block.index + 1,
-      previousHash: block.hash,
-      timestamp: Date.now(),
-      nonce: block.nonce,
-      hash: block.getHash(),
-      transactions: this.transactions,
-      difficulty: difficulty,
-      bits: this.difficultyToBits(difficulty),
-    };
-    this.addBlock(new Block(newBlock));
+    newBlock.hash = newBlock.getHash();
+    newBlock.difficulty = difficulty;
+    newBlock.bits = this.difficultyToBits(difficulty);
+    this.addBlock(newBlock);
+    this.transactions = [];
   }
 
   getDifficulty(bits) {
@@ -112,12 +114,11 @@ class BlockChain {
   }
 }
 
-module.exports = BlockChain;
-/* 
 const blockchain = new BlockChain();
-blockchain.addBlock(Block.getGenesis());
 do {
   blockchain.mining();
-} while (blockchain.blockchain.length <= 100);
+} while (blockchain.blockchain.length <= 60);
 
-console.log(blockchain.blockchain); */
+console.log(JSON.parse(JSON.stringify(blockchain.blockchain)));
+
+module.exports = BlockChain;

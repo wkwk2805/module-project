@@ -34,8 +34,7 @@ class Block {
           this.previousHash +
           this.timestamp +
           JSON.stringify(this.transactions) +
-          this.nonce +
-          this.bits
+          this.nonce
       )
       .digest("hex");
   }
