@@ -1,6 +1,7 @@
 const { BN } = require("bn.js");
 const Block = require("./block");
 const Transaction = require("./transaction");
+const Wallet = require("./wallet");
 
 class BlockChain {
   HANDICAP = 0x4000000;
@@ -116,8 +117,38 @@ class BlockChain {
 }
 
 const blockchain = new BlockChain();
-do {
+const transaction1 = new Transaction({
+  from: "user1",
+  to: "user2",
+  price: 10,
+});
+const transaction2 = new Transaction({
+  from: "user1",
+  to: "user2",
+  price: 10,
+});
+const transaction3 = new Transaction({
+  from: "user1",
+  to: "user2",
+  price: 10,
+});
+const transaction4 = new Transaction({
+  from: "user1",
+  to: "user2",
+  price: 10,
+});
+
+while (blockchain.blockchain.length <= 100) {
+  blockchain.addTransaction(transaction1);
+  blockchain.addTransaction(transaction2);
+  blockchain.addTransaction(transaction3);
+  blockchain.addTransaction(transaction4);
   blockchain.mining();
-} while (blockchain.blockchain.length <= 100);
+}
+
+const w = new Wallet(blockchain);
+
+console.log(w.getMyPrice("user1"));
+console.log(w.getMyPrice("user2"));
 
 module.exports = BlockChain;
