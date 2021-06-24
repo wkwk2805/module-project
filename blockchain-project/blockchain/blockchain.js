@@ -44,7 +44,6 @@ class BlockChain {
 
   mining() {
     const lastBlock = this.getLastBlock();
-    const block = "";
     const newBlock = new Block({
       index: lastBlock.index + 1,
       previousHash: lastBlock.hash,
@@ -54,6 +53,7 @@ class BlockChain {
     });
     const bits = lastBlock.bits;
     const target = this.getTargetHaveHandicap(bits);
+    console.log("현재 난이도 타겟값:", target);
     while (target <= newBlock.getHash()) {
       newBlock.nonce++;
     }
@@ -62,11 +62,12 @@ class BlockChain {
     newBlock.difficulty = difficulty;
     newBlock.bits = this.difficultyToBits(difficulty);
     this.addBlock(newBlock);
+    console.log("새로운 블록:", newBlock);
     this.transactions = [];
   }
 
   getDifficulty(bits) {
-    const wantedTime = 10;
+    const wantedTimeSecond = 10;
     const wantedBlockCount = 10;
     let difficulty = this.bitsToDifficulty(bits);
     const lastBlock = this.getLastBlock();
@@ -77,7 +78,7 @@ class BlockChain {
       let lastTime = lastBlock.timestamp;
       let elaspedTime = (lastTime - reTargetTime) / wantedBlockCount / 1000;
       console.log(`시간 비교 값: ${elaspedTime}초`);
-      let multiple = elaspedTime > wantedTime ? 0.25 : 4;
+      let multiple = elaspedTime > wantedTimeSecond ? 0.25 : 4;
       difficulty = difficulty * multiple;
       console.log(`최종 난이도: ${difficulty}`);
     }
@@ -117,8 +118,6 @@ class BlockChain {
 const blockchain = new BlockChain();
 do {
   blockchain.mining();
-} while (blockchain.blockchain.length <= 60);
-
-console.log(JSON.parse(JSON.stringify(blockchain.blockchain)));
+} while (blockchain.blockchain.length <= 100);
 
 module.exports = BlockChain;
