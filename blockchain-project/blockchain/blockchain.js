@@ -1,15 +1,21 @@
 const { BN } = require("bn.js");
 const Block = require("./block");
+const Transaction = require("./transaction");
 
 class BlockChain {
   HANDICAP = 0x4000000;
 
   constructor() {
     this.blockchain = [];
+    this.transactions = [];
   }
 
   addBlock(block) {
     this.blockchain.push(block);
+  }
+
+  addTransaction(transaction) {
+    this.transactions.push(transaction);
   }
 
   getTarget(bits) {
@@ -36,13 +42,50 @@ class BlockChain {
     return this.blockchain[this.blockchain.length - 1];
   }
 
-  mining(block) {
+  mining() {
+    const block = Object.assign(this.getLastBlock());
     const bits = block.bits;
     const target = this.getTargetHaveHandicap(bits);
+    console.log(target);
     while (target <= block.getHash()) {
       block.nonce++;
     }
-    return { nonce: block.nonce, hash: block.getHash() };
+    console.log(block.getHash());
+    const difficulty = this.getDifficulty(bits);
+    const newBlock = {
+      index: block.index + 1,
+      previousHash: block.hash,
+      timestamp: Date.now(),
+      nonce: block.nonce,
+      hash: block.getHash(),
+      transactions: this.transactions,
+      difficulty: difficulty,
+      bits: this.difficultyToBits(difficulty),
+    };
+    this.addBlock(new Block(newBlock));
+  }
+
+  getDifficulty(bits) {
+    const wantedTime = 10;
+    const wantedBlockCount = 10;
+    let difficulty = this.bitsToDifficulty(bits);
+    const lastBlock = this.getLastBlock();
+    if (lastBlock.index > 0 && lastBlock.index % wantedBlockCount == 0) {
+      console.log(`10개 시간 비교`);
+      let reTargetTime =
+        this.blockchain[this.blockchain.length - wantedBlockCount].timestamp;
+      let lastTime = lastBlock.timestamp;
+      let elaspedTime = (lastTime - reTargetTime) / wantedBlockCount / 1000;
+      console.log(`시간 비교 값: ${elaspedTime}초`);
+      let multiple = elaspedTime > wantedTime ? 0.25 : 4;
+      difficulty = difficulty * multiple;
+      console.log(`최종 난이도: ${difficulty}`);
+    }
+    return difficulty;
+  }
+
+  getBits() {
+    this.difficultyToBits(this.getDifficulty());
   }
 
   difficultyToBits(difficulty) {
@@ -70,3 +113,11 @@ class BlockChain {
     return parseInt(bits.toString(10));
   }
 }
+
+const blockchain = new BlockChain();
+blockchain.addBlock(Block.getGenesis());
+do {
+  blockchain.mining();
+} while (blockchain.blockchain.length <= 100);
+
+console.log(blockchain.blockchain);

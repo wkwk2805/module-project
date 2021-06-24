@@ -9,18 +9,20 @@ class Block {
     this.nonce = data.nonce;
     this.transactions = data.transactions;
     this.bits = data.bits;
-    this.hash = this.getHash();
-    this.difficulty = this.difficulty;
+    this.difficulty = data.difficulty;
+    this.hash = data.hash;
   }
 
   static getGenesis() {
     return new Block({
       index: 0,
       previousHash: 0,
-      timestamp: Math.floor(new Date().getTime() / 1000),
-      nonce: 0,
+      timestamp: Date.now(),
       transactions: [],
-      bits: 388618029,
+      bits: 470181472,
+      difficulty: 40,
+      nonce: 0,
+      hash: "GENESIS BLOCK",
     });
   }
 
