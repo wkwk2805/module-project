@@ -6,7 +6,7 @@ class BlockChain {
   HANDICAP = 0x4000000;
 
   constructor() {
-    this.blockchain = [];
+    this.blockchain = [Block.getGenesis()];
     this.transactions = [];
   }
 
@@ -46,11 +46,9 @@ class BlockChain {
     const block = Object.assign(this.getLastBlock());
     const bits = block.bits;
     const target = this.getTargetHaveHandicap(bits);
-    console.log(target);
     while (target <= block.getHash()) {
       block.nonce++;
     }
-    console.log(block.getHash());
     const difficulty = this.getDifficulty(bits);
     const newBlock = {
       index: block.index + 1,
@@ -114,10 +112,12 @@ class BlockChain {
   }
 }
 
+module.exports = BlockChain;
+/* 
 const blockchain = new BlockChain();
 blockchain.addBlock(Block.getGenesis());
 do {
   blockchain.mining();
 } while (blockchain.blockchain.length <= 100);
 
-console.log(blockchain.blockchain);
+console.log(blockchain.blockchain); */
