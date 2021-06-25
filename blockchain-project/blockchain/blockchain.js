@@ -2,6 +2,8 @@ const { BN } = require("bn.js");
 const Block = require("./block");
 const Transaction = require("./transaction");
 const Wallet = require("./wallet");
+const slowResolve = () =>
+  new Promise((resolve) => setImmediate(resolve.bind()));
 
 class BlockChain {
   HANDICAP = 0x4000000;
@@ -20,7 +22,7 @@ class BlockChain {
     if (this.blockchain.length == block.index) {
       this.blockchain.push(block);
       this.addTransaction(
-        new Transaction({ from: "SYSTEM", to: user, price: 50 })
+        new Transaction({ from: "SYSTEM", to: this.user, price: 50 })
       );
     }
   }
@@ -53,7 +55,7 @@ class BlockChain {
     return this.blockchain[this.blockchain.length - 1];
   }
 
-  mining() {
+  async mining() {
     const lastBlock = this.getLastBlock();
     const newBlock = new Block({
       index: lastBlock.index + 1,
@@ -67,6 +69,7 @@ class BlockChain {
     console.log("현재 난이도 타겟값:", target);
     while (target <= newBlock.getHash()) {
       newBlock.nonce++;
+      await slowResolve();
     }
     const difficulty = this.getDifficulty(bits);
     newBlock.hash = newBlock.getHash();
@@ -126,7 +129,7 @@ class BlockChain {
   }
 }
 
-const blockchain = new BlockChain();
+/* const blockchain = new BlockChain();
 const transaction1 = new Transaction({
   from: "user1",
   to: "user2",
@@ -148,17 +151,19 @@ const transaction4 = new Transaction({
   price: 10,
 });
 
-while (blockchain.blockchain.length <= 100) {
-  blockchain.addTransaction(transaction1);
-  blockchain.addTransaction(transaction2);
-  blockchain.addTransaction(transaction3);
-  blockchain.addTransaction(transaction4);
-  blockchain.mining();
-}
+(async () => {
+  while (blockchain.blockchain.length <= 100) {
+    blockchain.addTransaction(transaction1);
+    blockchain.addTransaction(transaction2);
+    blockchain.addTransaction(transaction3);
+    blockchain.addTransaction(transaction4);
+    await blockchain.mining();
+  }
+})();
 
 const w = new Wallet(blockchain);
 
 console.log(w.getMyPrice("user1"));
-console.log(w.getMyPrice("user2"));
+console.log(w.getMyPrice("user2")); */
 
 module.exports = BlockChain;
