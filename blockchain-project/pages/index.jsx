@@ -24,7 +24,12 @@ const index = () => {
     isStop = false;
     while (!isStop) {
       await blockchain.mining(isStop);
-      ws.send(JSON.stringify(blockchain.blockchain));
+      ws.send(
+        JSON.stringify({
+          type: "BLOCKCHAIN",
+          blockchain: blockchain.blockchain,
+        })
+      );
     }
   };
 
@@ -32,7 +37,14 @@ const index = () => {
     isStop = true;
   };
 
-  const send = () => {};
+  const send = () => {
+    const from = document.getElementById("from").value;
+    const to = document.getElementById("to").value;
+    const amount = document.getElementById("amount").value;
+    ws.send(
+      JSON.stringify({ type: "TRANSACTION", transaction: { from, to, amount } })
+    );
+  };
   return (
     <div>
       <h1>Transaction Page</h1>
