@@ -1,6 +1,7 @@
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: "8080" });
 let messages = [];
+
 wss.on("connection", (ws) => {
   ws.send(messages === [] ? JSON.stringify(messages) : messages);
   ws.on("message", (data) => onMessage(data, ws, wss));
@@ -11,7 +12,11 @@ wss.on("connection", (ws) => {
 
 const onMessage = (message, ws, wss) => {
   messages = message;
-  broadcast(wss, message);
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
 };
 
 const onError = (err) => {
@@ -24,13 +29,4 @@ const onClose = (d) => {
 
 const onOpen = (d) => {
   console.log("Open", d);
-};
-
-const broadcast = (wss, message) => {
-  console.log("broadcast");
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(message);
-    }
-  });
 };
