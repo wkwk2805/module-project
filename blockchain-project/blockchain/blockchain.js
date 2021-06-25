@@ -6,13 +6,23 @@ const Wallet = require("./wallet");
 class BlockChain {
   HANDICAP = 0x4000000;
 
-  constructor() {
-    this.blockchain = [Block.getGenesis()];
+  constructor(user, blockchain) {
+    this.blockchain = blockchain || [Block.getGenesis()];
     this.transactions = [];
+    this.user = user || "SYSTEM";
+  }
+
+  resetBlockchain(blockchain) {
+    this.blockchain = blockchain;
   }
 
   addBlock(block) {
-    this.blockchain.push(block);
+    if (this.blockchain.length == block.index) {
+      this.blockchain.push(block);
+      this.addTransaction(
+        new Transaction({ from: "SYSTEM", to: user, price: 50 })
+      );
+    }
   }
 
   addTransaction(transaction) {
