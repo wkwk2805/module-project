@@ -3,24 +3,42 @@ import BlockChain from "../blockchain/blockchain";
 import Transaction from "../blockchain/transaction";
 
 const blockchain = new BlockChain();
-const index = () => {
+const Index = () => {
   let ws;
   let isStop = false;
+  let websocketServerUrl = "192.168.0.19:8080";
 
   useEffect(() => {
-    localStorage.setItem("blockchain", JSON.stringify(blockchain.blockchain));
-    ws = new WebSocket("ws://192.168.0.19:8080");
-    ws.onmessage = (message) => {
-      const data = JSON.parse(message.data);
-      if (data.type === "BLOCKCHAIN") {
-        localStorage.setItem("blockchain", data.blockchain);
-      } else if (data.type === "TRANSACTION") {
-        blockchain.addTransaction(new Transaction(data.transaction));
-      }
-    };
+    inital();
   }, []);
 
-  const start = async () => {
+  const inital = () => {
+    localStorage.setItem("blockchain", JSON.stringify(blockchain.blockchain));
+    ws = new WebSocket(`ws://${websocketServerUrl}`);
+    ws.onmessage = onMessage;
+  };
+
+  const onMessage = (message) => {
+    const data = JSON.parse(message.data);
+    switch (data.type) {
+      case "BLOCKCHAIN":
+        saveBlockchain(data.blockchain);
+        break;
+      case "TRANSACTION":
+        addTransaction(data.transaction);
+        break;
+    }
+  };
+
+  const saveBlockchain = (blockchain) => {
+    localStorage.setItem("blockchain", blockchain);
+  };
+
+  const addTransaction = (transaction) => {
+    blockchain.addTransaction(new Transaction(transaction));
+  };
+
+  const startMining = async () => {
     isStop = false;
     while (!isStop) {
       await blockchain.mining(isStop);
@@ -33,11 +51,11 @@ const index = () => {
     }
   };
 
-  const stop = () => {
+  const stopMining = () => {
     isStop = true;
   };
 
-  const send = () => {
+  const sendTransactionData = () => {
     const from = document.getElementById("from").value;
     const to = document.getElementById("to").value;
     const amount = document.getElementById("amount").value;
@@ -62,14 +80,14 @@ const index = () => {
           <input type="text" id="amount" />
         </div>
         <div>
-          <button onClick={send}>send</button>
+          <button onClick={sendTransactionData}>sendTransactionData</button>
         </div>
       </div>
       <h1>Mining Page</h1>
-      <button onClick={start}>start</button>
-      <button onClick={stop}>stop</button>
+      <button onClick={startMining}>startMining</button>
+      <button onClick={stopMining}>stopMining</button>
     </div>
   );
 };
 
-export default index;
+export default Index;
