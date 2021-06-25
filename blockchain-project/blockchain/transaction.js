@@ -2,7 +2,7 @@ class Transaction {
   constructor(data) {
     this.from = data.from;
     this.to = data.to;
-    this.price = data.price;
+    this.amount = data.amount;
     this.timestamp = Date.now();
   }
 }
