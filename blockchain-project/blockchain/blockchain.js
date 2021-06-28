@@ -2,6 +2,7 @@ const { BN } = require("bn.js");
 const Block = require("./block");
 const Transaction = require("./transaction");
 const Wallet = require("./wallet");
+const Validation = require("./validation");
 
 class BlockChain {
   HANDICAP = 0x4000000;
@@ -21,11 +22,13 @@ class BlockChain {
   }
 
   addBlock(block) {
-    if (this.blockchain.length == block.index) {
+    if (Validation.isValidBlock(this.blockchain, block)) {
       this.blockchain.push(block);
+      this.transactions = [];
       this.addTransaction(
         new Transaction({ from: "SYSTEM", to: this.user, amount: 50 })
       );
+    } else {
     }
   }
 
@@ -78,9 +81,8 @@ class BlockChain {
     newBlock.hash = newBlock.getHash();
     newBlock.difficulty = difficulty;
     newBlock.bits = this.difficultyToBits(difficulty);
-    this.addBlock(newBlock);
     console.log("새로운 블록:", newBlock);
-    this.transactions = [];
+    return newBlock;
   }
 
   getDifficulty(bits) {
@@ -155,12 +157,12 @@ const transaction4 = new Transaction({
 });
 
 (async () => {
-  while (blockchain.blockchain.length <= 100) {
+  while (blockchain.blockchain.length <= 1) {
     blockchain.addTransaction(transaction1);
     blockchain.addTransaction(transaction2);
     blockchain.addTransaction(transaction3);
     blockchain.addTransaction(transaction4);
-    await blockchain.mining();
+    blockchain.addBlock(await blockchain.mining());
   }
 })();
 
