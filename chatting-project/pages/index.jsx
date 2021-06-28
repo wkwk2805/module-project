@@ -5,7 +5,7 @@ const Index = () => {
   const [texts, setTexts] = useState([]);
   const ref = useRef("");
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket("ws://192.168.0.19:8080");
     ws.onmessage = (data) => {
       setTexts(JSON.parse(data.data));
     };

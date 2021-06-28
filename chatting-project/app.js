@@ -1,7 +1,10 @@
 const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: "8080" });
 let messages = [];
-wss.on("connection", (ws) => {
+let clients = {};
+
+wss.on("connection", (ws, req) => {
+  clients[req.socket.remoteAddress] = ws;
   ws.send(messages === [] ? JSON.stringify(messages) : messages);
   ws.on("message", (data) => onMessage(data, ws, wss));
   ws.on("error", onError);
@@ -11,7 +14,7 @@ wss.on("connection", (ws) => {
 
 const onMessage = (message, ws, wss) => {
   messages = message;
-  broadcast(wss, message);
+  sendMessageSpecialUser(wss, ws, message);
 };
 
 const onError = (err) => {
@@ -26,10 +29,31 @@ const onOpen = (d) => {
   console.log("Open", d);
 };
 
-const broadcast = (wss, message) => {
-  console.log("broadcast");
+const broadcast = (wss, ws, message) => {
+  console.log("broadcast message: ", message);
   wss.clients.forEach((client) => {
+    console.log(client);
     if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+};
+
+const broadcastExcludeMyself = (wss, ws, message) => {
+  console.log("broadcastExcludeMyself message: ", message);
+  wss.clients.forEach((client) => {
+    if (client !== ws && client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+};
+
+const sendMessageSpecialUser = (wss, ws, message, remoteAddress) => {
+  wss.clients.forEach((client) => {
+    if (
+      client === clients[remoteAddress] &&
+      client.readyState === WebSocket.OPEN
+    ) {
       client.send(message);
     }
   });
