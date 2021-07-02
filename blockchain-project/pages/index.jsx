@@ -16,13 +16,18 @@ const Index = () => {
     localStorage.setItem("blockchain", JSON.stringify(blockchain.blockchain));
     ws = new WebSocket(`ws://${websocketServerUrl}`);
     ws.onmessage = onMessage;
+    downloadInitBlockchain();
+  };
+
+  const downloadInitBlockchain = () => {
+    ws.send("DOWNLOAD_BLOCKCHAIN");
   };
 
   const onMessage = (message) => {
     const data = JSON.parse(message.data);
     switch (data.type) {
-      case "BLOCKCHAIN":
-        saveBlockchain(data.blockchain);
+      case "ADD_BLOCK":
+        addBlock(data.newBlock);
         break;
       case "TRANSACTION":
         addTransaction(data.transaction);
@@ -30,8 +35,9 @@ const Index = () => {
     }
   };
 
-  const saveBlockchain = (blockchain) => {
-    localStorage.setItem("blockchain", blockchain);
+  const addBlock = (block) => {
+    blockchain.addBlock(block);
+    localStorage.setItem("blockchain", blockchain.blockchain);
   };
 
   const addTransaction = (transaction) => {
@@ -41,11 +47,11 @@ const Index = () => {
   const startMining = async () => {
     isStop = false;
     while (!isStop) {
-      await blockchain.mining(isStop);
+      const newBlock = await blockchain.mining(isStop);
       ws.send(
         JSON.stringify({
-          type: "BLOCKCHAIN",
-          blockchain: blockchain.blockchain,
+          type: "ADD_BLOCK",
+          newBlock,
         })
       );
     }
