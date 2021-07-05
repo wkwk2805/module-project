@@ -13,7 +13,6 @@ wss.on("connection", (ws, req) => {
 });
 
 const onMessage = (message, ws) => {
-  this.message = message;
   switch (message.type) {
     case "BROADCAST":
       broadcast(message);
@@ -61,7 +60,7 @@ const sendMessageSpecialUser = (message) => {
   console.log("sendMessageSpecialUser");
   wss.clients.forEach((client) => {
     if (
-      client === clients[message.remoteAddress] &&
+      client === clients[message.data.remoteAddress] &&
       client.readyState === WebSocket.OPEN
     ) {
       client.send(message);

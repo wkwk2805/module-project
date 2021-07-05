@@ -1,5 +1,9 @@
+const Message = require("./message");
+
 class MessageHandler {
-  constructor(message) {
+  handler(messageStr) {
+    const message = Message.fromJson(messageStr);
+    this.message = message;
     switch (message.action) {
       case "ADD_BLOCK":
         this.addBlock(message.data);
