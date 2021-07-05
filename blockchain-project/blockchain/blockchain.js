@@ -88,6 +88,7 @@ class BlockChain {
   getDifficulty(bits) {
     const wantedTimeSecond = 10;
     const wantedBlockCount = 10;
+    const multipleNumber = 4;
     let difficulty = this.bitsToDifficulty(bits);
     const lastBlock = this.getLastBlock();
     if (lastBlock.index > 0 && lastBlock.index % wantedBlockCount == 0) {
@@ -97,7 +98,8 @@ class BlockChain {
       let lastTime = lastBlock.timestamp;
       let elaspedTime = (lastTime - reTargetTime) / wantedBlockCount / 1000;
       console.log(`시간 비교 값: ${elaspedTime}초`);
-      let multiple = elaspedTime > wantedTimeSecond ? 0.25 : 4;
+      let multiple =
+        elaspedTime > wantedTimeSecond ? 1 / multipleNumber : multipleNumber;
       difficulty = difficulty * multiple;
       console.log(`최종 난이도: ${difficulty}`);
     }
