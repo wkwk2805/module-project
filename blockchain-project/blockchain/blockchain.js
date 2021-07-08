@@ -10,6 +10,9 @@ class BlockChain {
     this.blockchain = blockchain || [Block.getGenesis()];
     this.transactions = [];
     this.user = user || "SYSTEM";
+    this.wantedTimeSecond = 20;
+    this.wantedBlockCount = 20;
+    this.multipleNumber = 4;
   }
 
   slowResolve() {
@@ -77,20 +80,21 @@ class BlockChain {
   }
 
   getDifficulty(bits) {
-    const wantedTimeSecond = 10;
-    const wantedBlockCount = 10;
-    const multipleNumber = 4;
     let difficulty = this.bitsToDifficulty(bits);
     const lastBlock = this.getLastBlock();
-    if (lastBlock.index > 0 && lastBlock.index % wantedBlockCount == 0) {
+    if (lastBlock.index > 0 && lastBlock.index % this.wantedBlockCount == 0) {
       console.log(`10개 시간 비교`);
       let reTargetTime =
-        this.blockchain[this.blockchain.length - wantedBlockCount].timestamp;
+        this.blockchain[this.blockchain.length - this.wantedBlockCount]
+          .timestamp;
       let lastTime = lastBlock.timestamp;
-      let elaspedTime = (lastTime - reTargetTime) / wantedBlockCount / 1000;
+      let elaspedTime =
+        (lastTime - reTargetTime) / this.wantedBlockCount / 1000;
       console.log(`시간 비교 값: ${elaspedTime}초`);
       let multiple =
-        elaspedTime > wantedTimeSecond ? 1 / multipleNumber : multipleNumber;
+        elaspedTime > this.wantedTimeSecond
+          ? 1 / this.multipleNumber
+          : this.multipleNumber;
       difficulty = difficulty * multiple;
       console.log(`최종 난이도: ${difficulty}`);
     }

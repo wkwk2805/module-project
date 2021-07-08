@@ -34,10 +34,16 @@ const endMining = (blockchainData, req) => {
       saveBlockchain(blockchain);
       console.log("블록체인성공: " + req.socket.remoteAddress);
     } else {
-      console.log("블록체인실패: 블록체인 내부 해시들 사이의 문제가 있습니다.");
+      console.log(
+        "블록체인실패: 블록체인 내부 해시들 사이의 문제가 있습니다. - " +
+          req.socket.remoteAddress
+      );
     }
   } else {
-    console.log("블록체인실패: blockchain 길이가 문제가 있습니다.");
+    console.log(
+      "블록체인실패: blockchain 길이가 문제가 있습니다. - " +
+        req.socket.remoteAddress
+    );
   }
 };
 
