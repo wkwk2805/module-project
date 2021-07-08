@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import BlockChain from "../blockchain/blockchain";
 import Transaction from "../blockchain/transaction";
 import Message from "../blockchain/message";
+import { ClientMessageHandler } from "../blockchain/messageHandler";
 
 const blockchain = new BlockChain();
 
@@ -11,50 +12,16 @@ const Index = () => {
   let websocketServerUrl = "192.168.0.19:8080";
 
   useEffect(() => {
-    inital();
+    connectWS();
   }, []);
 
-  const inital = () => {
+  const connectWS = () => {
+    const url = `ws://${websocketServerUrl}`;
+    console.log("Connect WebSocket server - " + url);
     localStorage.setItem("blockchain", JSON.stringify(blockchain.blockchain));
-    ws = new WebSocket(`ws://${websocketServerUrl}`);
-    ws.onmessage = onMessage;
-  };
-
-  const initBlockchain = (blockchainData) => {
-    console.log("INIT_BLOCKCHAIN");
-    if (blockchainData) blockchain.blockchain = blockchainData;
-    localStorage.setItem("blockchain", JSON.stringify(blockchain.blockchain));
-    console.log("현재 블록체인: ", blockchain.blockchain);
-  };
-
-  const saveBlockchain = (blockchainData) => {
-    console.log("SAVE_BLOCKCHAIN");
-    blockchain.blockchain = blockchainData;
-    localStorage.setItem("blockchain", JSON.stringify(blockchainData));
-    console.log("현재 블록체인: ", blockchain.blockchain);
-  };
-
-  const addTransaction = (transactionData) => {
-    console.log("ADD_TRANSACTION");
-    const transaction = new Transaction(transactionData);
-    if (transaction.from === "SYSTEM") blockchain.transactions = [];
-    blockchain.addTransaction(transaction);
-  };
-
-  const onMessage = (data) => {
-    const message = Message.fromJson(data.data);
-    switch (message.action) {
-      case Message.INIT_BLOCKCHAIN:
-        initBlockchain(message.data);
-        break;
-      case Message.SAVE_BLOCKCHAIN:
-        saveBlockchain(message.data);
-        break;
-      case Message.ADD_TRANSACTION:
-        addTransaction(message.data);
-      default:
-        break;
-    }
+    ws = new WebSocket(url);
+    ws.onmessage = (data) =>
+      new ClientMessageHandler(blockchain).onMessage(data);
   };
 
   const send = (data) => {
