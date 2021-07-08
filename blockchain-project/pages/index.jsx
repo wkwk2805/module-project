@@ -20,26 +20,38 @@ const Index = () => {
     ws.onmessage = onMessage;
   };
 
+  const initBlockchain = (blockchainData) => {
+    console.log("INIT_BLOCKCHAIN");
+    if (blockchainData) blockchain.blockchain = blockchainData;
+    localStorage.setItem("blockchain", JSON.stringify(blockchain.blockchain));
+    console.log("현재 블록체인: ", blockchain.blockchain);
+  };
+
+  const saveBlockchain = (blockchainData) => {
+    console.log("SAVE_BLOCKCHAIN");
+    blockchain.blockchain = blockchainData;
+    localStorage.setItem("blockchain", JSON.stringify(blockchainData));
+    console.log("현재 블록체인: ", blockchain.blockchain);
+  };
+
+  const addTransaction = (transactionData) => {
+    console.log("ADD_TRANSACTION");
+    const transaction = new Transaction(transactionData);
+    if (transaction.from === "SYSTEM") blockchain.transactions = [];
+    blockchain.addTransaction(transaction);
+  };
+
   const onMessage = (data) => {
     const message = Message.fromJson(data.data);
     switch (message.action) {
-      case Message.SAVE_BLOCKCHAIN:
-        console.log("SAVE_BLOCKCHAIN");
-        if (message.data) blockchain.blockchain = message.data;
-        localStorage.setItem(
-          "blockchain",
-          JSON.stringify(blockchain.blockchain)
-        );
+      case Message.INIT_BLOCKCHAIN:
+        initBlockchain(message.data);
         break;
-      case Message.END_MINING:
-        console.log("END_MINING");
-        localStorage.setItem("blockchain", JSON.stringify(message.data));
+      case Message.SAVE_BLOCKCHAIN:
+        saveBlockchain(message.data);
         break;
       case Message.ADD_TRANSACTION:
-        console.log("ADD_TRANSACTION");
-        const transaction = new Transaction(message.data);
-        if (transaction.from === "SYSTEM") blockchain.transactions = [];
-        blockchain.addTransaction(transaction);
+        addTransaction(message.data);
       default:
         break;
     }
@@ -50,9 +62,9 @@ const Index = () => {
   };
 
   const startMining = async () => {
+    console.log("startMining");
     isStop = false;
     while (!isStop) {
-      blockchain.blockchain = JSON.parse(localStorage.getItem("blockchain"));
       const newBlock = await blockchain.mining(isStop);
       blockchain.addBlock(newBlock);
       send({ action: Message.END_MINING, data: blockchain.blockchain });
@@ -60,6 +72,7 @@ const Index = () => {
   };
 
   const stopMining = () => {
+    console.log("stopMining");
     isStop = true;
   };
 
@@ -67,7 +80,10 @@ const Index = () => {
     const from = document.getElementById("from").value;
     const to = document.getElementById("to").value;
     const amount = document.getElementById("amount").value;
-    send({ action: Message.ADD_TRANSACTION, data: { from, to, amount } });
+    send({
+      action: Message.ADD_TRANSACTION,
+      data: new Transaction({ from, to, amount }),
+    });
   };
 
   return (

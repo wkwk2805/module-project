@@ -3,6 +3,7 @@ class Message {
   static SYNC_BLOCKCHAIN = "SYNC_BLOCKCHAIN";
   static END_MINING = "END_MINING";
   static ADD_TRANSACTION = "ADD_TRANSACTION";
+  static INIT_BLOCKCHAIN = "INIT_BLOCKCHAIN";
 
   constructor(obj) {
     this.type = obj.type;

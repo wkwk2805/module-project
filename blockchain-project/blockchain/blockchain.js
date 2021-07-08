@@ -7,11 +7,9 @@ class BlockChain {
   HANDICAP = 0x4000000;
 
   constructor(user, blockchain) {
-    console.log("blockchain", blockchain);
     this.blockchain = blockchain || [Block.getGenesis()];
     this.transactions = [];
     this.user = user || "SYSTEM";
-    console.log(this.blockchain);
   }
 
   slowResolve() {
@@ -21,8 +19,6 @@ class BlockChain {
   addBlock(block) {
     if (Validation.isValidBlock(this.blockchain, block)) {
       this.blockchain.push(block);
-    } else {
-      throw Error("유효하지 않은 블록입니다.");
     }
   }
 
@@ -55,6 +51,7 @@ class BlockChain {
   }
 
   async mining(isStop) {
+    console.log("mining");
     const lastBlock = this.getLastBlock();
     const newBlock = new Block({
       index: lastBlock.index + 1,
@@ -162,7 +159,5 @@ const w = new Wallet(blockchain);
 
 console.log(w.getMyAmount("user1"));
 console.log(w.getMyAmount("user2")); */
-
-console.log(new BlockChain().difficultyToBits(4000));
 
 module.exports = BlockChain;
