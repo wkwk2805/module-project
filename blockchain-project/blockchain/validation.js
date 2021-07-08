@@ -15,10 +15,17 @@ class Validation {
   }
 
   static compareWithLength(blockchain, newBlock) {
+    console.log("compareWithLength", blockchain.length === newBlock.index);
     return blockchain.length === newBlock.index;
   }
 
   static compareWithHashs(blockchain, newBlock) {
+    console.log(
+      "compareWithHashs",
+      blockchain[blockchain.length - 1].hash,
+      newBlock.previousHash,
+      blockchain[blockchain.length - 1].hash === newBlock.previousHash
+    );
     return blockchain[blockchain.length - 1].hash === newBlock.previousHash;
   }
 
@@ -31,6 +38,7 @@ class Validation {
   }
 
   static compareHashAndData(newBlock) {
+    console.log("compareHashAndData", newBlock.hash === newBlock.getHash());
     return newBlock.hash === newBlock.getHash();
   }
 }

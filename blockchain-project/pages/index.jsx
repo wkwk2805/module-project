@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import BlockChain from "../blockchain/blockchain";
 import Transaction from "../blockchain/transaction";
+import Message from "../blockchain/message";
 
 const blockchain = new BlockChain();
+
 const Index = () => {
   let ws;
   let isStop = false;
@@ -16,44 +18,34 @@ const Index = () => {
     localStorage.setItem("blockchain", JSON.stringify(blockchain.blockchain));
     ws = new WebSocket(`ws://${websocketServerUrl}`);
     ws.onmessage = onMessage;
-    downloadInitBlockchain();
   };
 
-  const downloadInitBlockchain = () => {
-    ws.send("DOWNLOAD_BLOCKCHAIN");
-  };
-
-  const onMessage = (message) => {
-    const data = JSON.parse(message.data);
-    switch (data.type) {
-      case "ADD_BLOCK":
-        addBlock(data.newBlock);
+  const onMessage = (data) => {
+    const message = Message.fromJson(data.data);
+    switch (message.action) {
+      case Message.SAVE_BLOCKCHAIN:
+        blockchain.blockchain = message.data;
+        localStorage.setItem("blockchain", JSON.stringify(message.data));
         break;
-      case "TRANSACTION":
-        addTransaction(data.transaction);
+      case Message.END_MINING:
+        localStorage.setItem("blockchain", JSON.stringify(message.data));
+        break;
+      case Message.ADD_TRANSACTION:
+        blockchain.addTransaction(new Transaction(message.data));
+      default:
         break;
     }
   };
 
-  const addBlock = (block) => {
-    blockchain.addBlock(block);
-    localStorage.setItem("blockchain", blockchain.blockchain);
-  };
-
-  const addTransaction = (transaction) => {
-    blockchain.addTransaction(new Transaction(transaction));
+  const send = (data) => {
+    ws.send(JSON.stringify(new Message(data)));
   };
 
   const startMining = async () => {
-    isStop = false;
     while (!isStop) {
-      const newBlock = await blockchain.mining(isStop);
-      ws.send(
-        JSON.stringify({
-          type: "ADD_BLOCK",
-          newBlock,
-        })
-      );
+      await blockchain.mining();
+      blockchain.addBlock(newBlock);
+      send({ action: Message.END_MINING, data: blockchain.blockchain });
     }
   };
 
@@ -61,14 +53,18 @@ const Index = () => {
     isStop = true;
   };
 
+  const restart = async () => {
+    stopMining();
+    await startMining();
+  };
+
   const sendTransactionData = () => {
     const from = document.getElementById("from").value;
     const to = document.getElementById("to").value;
     const amount = document.getElementById("amount").value;
-    ws.send(
-      JSON.stringify({ type: "TRANSACTION", transaction: { from, to, amount } })
-    );
+    send({ action: Message.ADD_TRANSACTION, data: { from, to, amount } });
   };
+
   return (
     <div>
       <h1>Transaction Page</h1>

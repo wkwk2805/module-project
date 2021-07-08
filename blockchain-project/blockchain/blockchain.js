@@ -1,7 +1,6 @@
 const { BN } = require("bn.js");
 const Block = require("./block");
 const Transaction = require("./transaction");
-const Wallet = require("./wallet");
 const Validation = require("./validation");
 
 class BlockChain {
@@ -17,10 +16,6 @@ class BlockChain {
     return new Promise((resolve) => setTimeout(resolve.bind(), 0));
   }
 
-  resetBlockchain(blockchain) {
-    this.blockchain = blockchain;
-  }
-
   addBlock(block) {
     if (Validation.isValidBlock(this.blockchain, block)) {
       this.blockchain.push(block);
@@ -29,6 +24,7 @@ class BlockChain {
         new Transaction({ from: "SYSTEM", to: this.user, amount: 50 })
       );
     } else {
+      throw Error("유효하지 않은 블록입니다.");
     }
   }
 
@@ -60,7 +56,7 @@ class BlockChain {
     return this.blockchain[this.blockchain.length - 1];
   }
 
-  async mining(isStop) {
+  async mining() {
     const lastBlock = this.getLastBlock();
     const newBlock = new Block({
       index: lastBlock.index + 1,
@@ -75,7 +71,6 @@ class BlockChain {
     while (target <= newBlock.getHash()) {
       newBlock.nonce++;
       await this.slowResolve();
-      if (isStop) return;
     }
     const difficulty = this.getDifficulty(bits);
     newBlock.hash = newBlock.getHash();
@@ -104,10 +99,6 @@ class BlockChain {
       console.log(`최종 난이도: ${difficulty}`);
     }
     return difficulty;
-  }
-
-  getBits() {
-    this.difficultyToBits(this.getDifficulty());
   }
 
   difficultyToBits(difficulty) {

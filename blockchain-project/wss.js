@@ -1,37 +1,58 @@
 const WebSocket = require("ws");
+const Message = require("./blockchain/message");
 const wss = new WebSocket.Server({ port: "8080" });
-let messages = [];
 let clients = {};
+let blockchain = [];
 
 wss.on("connection", (ws, req) => {
-  clients[req.socket.remoteAddress] = ws;
-  ws.send(messages === [] ? JSON.stringify(messages) : messages);
+  initialConnection(ws, req);
   ws.on("message", (data) => onMessage(data, ws));
   ws.on("error", onError);
-  ws.on("close", onClose);
+  ws.on("close", () => onClose(req));
   ws.on("open", onOpen);
 });
 
-const onMessage = (message, ws) => {
-  switch (message.type) {
-    case "BROADCAST":
+const initialConnection = (ws, req) => {
+  clients[req.socket.remoteAddress] = ws;
+  ws.send(
+    JSON.stringify(
+      new Message({
+        action: Message.SAVE_BLOCKCHAIN,
+        data: blockchain.length > 0 && blockchain,
+      })
+    )
+  );
+};
+
+const onMessage = (data, ws) => {
+  const message = Message.fromJson(data);
+  switch (message.action) {
+    case Message.SYNC_BLOCKCHAIN:
+      blockchain = message.data;
+      broadcast(
+        new Message({ action: Message.SAVE_BLOCKCHAIN, data: blockchain })
+      );
+      break;
+
+    case Message.END_MINING:
+      blockchain = message.data;
+      broadcast(new Message({ action: Message.END_MINING, data: blockchain }));
+      break;
+    case Message.ADD_TRANSACTION:
       broadcast(message);
+
+    default:
       break;
-    case "BROADCAST_EXCLUDE_MYSELF":
-      broadcastExcludeMyself(message, ws);
-      break;
-    case "SEND_MESSAGE_TO_SPECIAL_USER":
-      sendMessageSpecialUser(message);
   }
-  broadcast(message);
 };
 
 const onError = (err) => {
   console.log(err);
 };
 
-const onClose = (d) => {
-  console.log("Close", d);
+const onClose = (req) => {
+  console.log("Close");
+  delete clients[req.socket.remoteAddress];
 };
 
 const onOpen = (d) => {
@@ -39,31 +60,21 @@ const onOpen = (d) => {
 };
 
 const broadcast = (message) => {
-  console.log("broadcast");
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(message);
+      client.send(JSON.stringify(message));
     }
   });
 };
 
-const broadcastExcludeMyself = (message, ws) => {
-  console.log("broadcastExcludeMyself");
-  wss.clients.forEach((client) => {
-    if (client !== ws && client.readyState === WebSocket.OPEN) {
-      client.send(message);
-    }
-  });
-};
-
-const sendMessageSpecialUser = (message) => {
-  console.log("sendMessageSpecialUser");
+const sendMessageSpecificUser = (message) => {
+  console.log("sendMessageSpecificUser");
   wss.clients.forEach((client) => {
     if (
-      client === clients[message.data.remoteAddress] &&
+      client === clients[message.specificUser] &&
       client.readyState === WebSocket.OPEN
     ) {
-      client.send(message);
+      client.send(JSON.stringify(message));
     }
   });
 };
