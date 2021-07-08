@@ -24,14 +24,22 @@ const Index = () => {
     const message = Message.fromJson(data.data);
     switch (message.action) {
       case Message.SAVE_BLOCKCHAIN:
-        blockchain.blockchain = message.data;
-        localStorage.setItem("blockchain", JSON.stringify(message.data));
+        console.log("SAVE_BLOCKCHAIN");
+        if (message.data) blockchain.blockchain = message.data;
+        localStorage.setItem(
+          "blockchain",
+          JSON.stringify(blockchain.blockchain)
+        );
         break;
       case Message.END_MINING:
+        console.log("END_MINING");
         localStorage.setItem("blockchain", JSON.stringify(message.data));
         break;
       case Message.ADD_TRANSACTION:
-        blockchain.addTransaction(new Transaction(message.data));
+        console.log("ADD_TRANSACTION");
+        const transaction = new Transaction(message.data);
+        if (transaction.from === "SYSTEM") blockchain.transactions = [];
+        blockchain.addTransaction(transaction);
       default:
         break;
     }
@@ -42,8 +50,10 @@ const Index = () => {
   };
 
   const startMining = async () => {
+    isStop = false;
     while (!isStop) {
-      await blockchain.mining();
+      blockchain.blockchain = JSON.parse(localStorage.getItem("blockchain"));
+      const newBlock = await blockchain.mining(isStop);
       blockchain.addBlock(newBlock);
       send({ action: Message.END_MINING, data: blockchain.blockchain });
     }
@@ -51,11 +61,6 @@ const Index = () => {
 
   const stopMining = () => {
     isStop = true;
-  };
-
-  const restart = async () => {
-    stopMining();
-    await startMining();
   };
 
   const sendTransactionData = () => {
