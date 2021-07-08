@@ -1,8 +1,6 @@
 const WebSocket = require("ws");
 const Message = require("./blockchain/message");
 const { ServerMessageHandler } = require("./blockchain/messageHandler");
-const Transaction = require("./blockchain/transaction");
-const Validation = require("./blockchain/validation");
 const wss = new WebSocket.Server({ port: "8080" });
 let clients = {};
 let blockchain = [];
