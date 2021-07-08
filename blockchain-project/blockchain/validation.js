@@ -15,17 +15,16 @@ class Validation {
   }
 
   static compareWithLength(blockchain, newBlock) {
-    console.log("compareWithLength", blockchain.length === newBlock.index);
+    if (blockchain.length !== newBlock.index)
+      console.log("블록체인의 길이와 새로운블록의 인덱스가 다릅니다.");
     return blockchain.length === newBlock.index;
   }
 
   static compareWithHashs(blockchain, newBlock) {
-    console.log(
-      "compareWithHashs",
-      blockchain[blockchain.length - 1].hash,
-      newBlock.previousHash,
-      blockchain[blockchain.length - 1].hash === newBlock.previousHash
-    );
+    if (blockchain[blockchain.length - 1].hash !== newBlock.previousHash)
+      console.log(
+        "마지막 블록의 현재 해쉬와 새로운블록의 이전해쉬가 다릅니다!"
+      );
     return blockchain[blockchain.length - 1].hash === newBlock.previousHash;
   }
 
@@ -38,7 +37,8 @@ class Validation {
   }
 
   static compareHashAndData(newBlock) {
-    console.log("compareHashAndData", newBlock.hash === newBlock.getHash());
+    if (newBlock.hash !== newBlock.getHash())
+      console.log("블록의 정보와 해쉬의 값이 일치하지 않습니다.");
     return newBlock.hash === newBlock.getHash();
   }
 }
