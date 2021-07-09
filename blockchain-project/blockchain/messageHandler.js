@@ -49,13 +49,13 @@ class ClientMessageHandler {
 }
 
 class ServerMessageHandler {
-  constructor(blockchain, broadcast) {
-    this.blockchain = blockchain;
+  constructor(broadcast) {
     this.broadcast = broadcast;
     this.rewardAmount = 50;
   }
 
-  onMessage(data, req) {
+  onMessage(blockchain, data, req) {
+    this.blockchain = blockchain;
     const message = Message.fromJson(data);
     switch (message.action) {
       case Message.END_MINING:
