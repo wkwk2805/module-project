@@ -5,10 +5,8 @@ class Message {
   static INIT_BLOCKCHAIN = "INIT_BLOCKCHAIN";
 
   constructor(obj) {
-    this.type = obj.type;
     this.action = obj.action;
     this.data = obj.data;
-    this.specificUser = obj.specificUser;
   }
 
   static fromJson(str) {
