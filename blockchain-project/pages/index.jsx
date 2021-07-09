@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import BlockChain from "../blockchain/blockchain";
 import Transaction from "../blockchain/transaction";
 import Message from "../blockchain/message";
-import { ClientMessageHandler } from "../blockchain/messageHandler";
+import ClientMessageHandler from "../blockchain/clientMessageHandler";
 
 const blockchain = new BlockChain();
 
