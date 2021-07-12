@@ -1,16 +1,17 @@
 const hashs = require("hash.js");
+const Block = require("./block");
 
 class Validation {
   static compareWithAllHashs(blockchain) {
     for (let i = 0; i < blockchain.length; i++) {
       if (
         i + 1 !== blockchain.length &&
-        blockchain[i + 1].previousHash !== blockchain[i].hash &&
-        this.compareHashAndData(blockchain[i])
+        blockchain[i + 1].previousHash === blockchain[i].hash &&
+        this.compareHashAndData(new Block(blockchain[i]))
       ) {
-        return false;
+        return true;
       }
-      return true;
+      return false;
     }
   }
 
@@ -37,6 +38,7 @@ class Validation {
   }
 
   static compareHashAndData(newBlock) {
+    if (newBlock.index === 0) return true;
     if (newBlock.hash !== newBlock.getHash())
       console.log("블록의 정보와 해쉬의 값이 일치하지 않습니다.");
     return newBlock.hash === newBlock.getHash();

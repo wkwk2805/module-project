@@ -19,8 +19,8 @@ class Block {
       previousHash: 0,
       timestamp: Date.now(),
       transactions: [],
-      bits: 454058557,
-      difficulty: 4000,
+      bits: 486604799,
+      difficulty: 1,
       nonce: 0,
       hash: "GENESIS BLOCK",
     });
