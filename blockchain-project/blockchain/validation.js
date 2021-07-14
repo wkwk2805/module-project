@@ -3,16 +3,24 @@ const Block = require("./block");
 
 class Validation {
   static compareWithAllHashs(blockchain) {
+    let result = false;
     for (let i = 0; i < blockchain.length; i++) {
-      if (
-        i + 1 !== blockchain.length &&
-        blockchain[i + 1].previousHash === blockchain[i].hash &&
-        this.compareHashAndData(new Block(blockchain[i]))
-      ) {
-        return true;
+      if (i + 1 !== blockchain.length) {
+        if (
+          blockchain[i + 1].previousHash === blockchain[i].hash &&
+          this.compareHashAndData(new Block(blockchain[i]))
+        ) {
+          result = true;
+        } else {
+          return false;
+        }
+      } else {
+        if (this.compareHashAndData(new Block(blockchain[i]))) {
+          result = true;
+        }
       }
-      return false;
     }
+    return result;
   }
 
   static compareWithLength(blockchain, newBlock) {
@@ -22,7 +30,7 @@ class Validation {
   }
 
   static compareWithHashs(blockchain, newBlock) {
-    if (blockchain[blockchain.length - 1].hash !== newBlock.previousHash)
+    if (blockchain[blockchain.length - 1].hash === newBlock.previousHash)
       console.log(
         "마지막 블록의 현재 해쉬와 새로운블록의 이전해쉬가 다릅니다!"
       );
