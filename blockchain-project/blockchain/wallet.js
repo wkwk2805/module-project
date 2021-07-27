@@ -1,9 +1,9 @@
 class Wallet {
   constructor(blockchain) {
-    const blocks = blockchain.blockchain;
+    const blocks = blockchain?.blockchain;
     this.transactions = blocks
-      .map((block) => block.transactions)
-      .reduce((acc, cur) => acc.concat(cur));
+      ?.map((block) => block.transactions)
+      ?.reduce((acc, cur) => acc.concat(cur));
   }
   getMyAmount(user) {
     let from = this.transactions

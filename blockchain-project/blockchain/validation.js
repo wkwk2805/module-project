@@ -1,4 +1,3 @@
-const hashs = require("hash.js");
 const Block = require("./block");
 
 class Validation {
